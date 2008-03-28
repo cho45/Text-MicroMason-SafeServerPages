@@ -5,30 +5,30 @@ use strict;
 our $VERSION = '0.01';
 
 my %block_types = (
-	''   => 'perl', # <% perl statements %>
-	'='  => 'expr', # <%= perl expression (HTML escaped) %>
+	''     => 'perl', # <% perl statements %>
+	'='    => 'expr', # <%= perl expression (HTML escaped) %>
 	'raw=' => 'expr', # <%= perl expression (raw) %>
-	'--' => 'doc',  # <%-- this text will not appear in the output --%>
-	'&'  => 'file', # <%& filename argument %>
+	'--'   => 'doc',  # <%-- this text will not appear in the output --%>
+	'&'    => 'file', # <%& filename argument %>
 );
 
-my $re_eol = "(?:\\r\\n|\\r|\\n|\\z)";
-my $re_tag = "perl|args|once|init|cleanup|doc|text|expr|file";
+my $re_eol = "(?:\\r?\\n|\\r|\\z)";
+my $re_tag = "args|cleanup|doc|expr|file|init|once|perl|text";
 
 sub lex_token {
-	# Blocks in <%word> ... <%word> tags.
-	/\G \<\%($re_tag)\> (.*?) \<\/\%\1\> $re_eol? /xcogs ? ( $1 => $2 ) :
+	# Blocks in <%word> ... </%word> tags.
+	/\G <% ($re_tag) \s*> (.*?) <\/% \1 \s*> $re_eol? /xcogs ? ( $1 => $2 ) :
 
 	# Blocks in <% ... %> tags.
-	/\G \<\% (\=|\&|raw=)? ( .*? ) \%\> /gcxs ? ( $block_types{$1 || ''} => ($1 eq '=') ? "encode_entities(do { $2 })"  : $2 ) :
+	/\G <% ((?:(?:raw)?=|&)?) (.*?) %> /gcxs ? ( $block_types{$1} => ($1 eq '=') ? "encode_entities(do { $2 })" : $2 ) :
 
 	# Blocks in <%-- ... --%> tags.
-	/\G \<\% \-\- ( .*? ) \-\- \%\> /gcxs ? ( 'doc' => $1 ) :
+	/\G <% -- (.*?) -- %> /gcxs ? ( 'doc' => $1 ) :
 
-	# Things that don't match the above
-	/\G ( (?: [^\<]+ | \<(?!\%) )? ) /gcxs ? ( 'text' => $1 ) :
+	# Things that don't match the above.
+	/\G ( (?: [^<] | <(?!\/?%) )+ ) /gcxs ? ( 'text' => $1 ) :
 
-	# Lexer error
+	# Lexer error.
 	()
 }
 
@@ -51,6 +51,7 @@ Text::MicroMason::SafeServerPages - Safety ServerPages syntax
 
 =head1 SYNOPSIS
 
+  use Text::MicroMason;
   use Text::MicroMason::SafeServerPages;
 
   my $m = Text::MicroMason->new(qw/ -SafeServerPages /);
@@ -68,7 +69,7 @@ Text::MicroMason::SafeServerPages - Safety ServerPages syntax
 
   print $cr->(
     title => "Foo<bar>",
-    body  => "<div class='section'>aaaa</div>",
+    body  => qq{<div class="section">aaaa</div>},
   );
 
 
