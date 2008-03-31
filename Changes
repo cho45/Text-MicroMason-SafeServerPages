@@ -1,4 +1,8 @@
 Revision history for Perl extension Text::MicroMason::SafeServerPages
 
+0.02 Tue Apr 01 00:59:00 2008
+	* Just append dependency to Makefile.PL
+
 0.01 Mon Mar 24 19:15:49 2008
 	* original version
+
