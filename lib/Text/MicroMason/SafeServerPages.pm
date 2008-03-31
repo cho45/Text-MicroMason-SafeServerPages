@@ -2,7 +2,7 @@ package Text::MicroMason::SafeServerPages;
 
 use strict;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 my %block_types = (
 	''     => 'perl', # <% perl statements %>
