@@ -1,5 +1,8 @@
 Revision history for Perl extension Text::MicroMason::SafeServerPages
 
+0.03 Thu Apr 17 23:21:00 2008
+	* Restrict escape characters /[<>'"&]/
+
 0.02 Tue Apr 01 00:59:00 2008
 	* Just append dependency to Makefile.PL
 
